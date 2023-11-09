@@ -1,0 +1,215 @@
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Basket API"
+  description: API для работы с корзинами
+servers:
+  - url: http://localhost:8084
+    description: Example server
+paths:
+  /search_basket:
+    get:
+      summary: Поиск корзины по user_id
+      parameters:
+        - name: user_id
+          description: user_id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The basket for the provided user_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/baskets"
+        404:
+          description: No products found for the provided mask
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /all_Baskets:
+    get:
+      summary: Получение всех корзин
+      responses:
+        "200":
+          description: Array of baskets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/baskets"
+        401:
+          description: Not authentication
+          content:
+            application/json:
+              schema:
+                type: string
+  /basket:
+    post:
+      summary: Идентификатор, добавленного продукта в корзину
+      parameters:
+        - name: user_id
+          description: user_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: product_id
+          description: product_id
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: quantity_of_products
+          description: Количество продуктов
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: id
+          content:
+            application/json:
+              schema:
+                type: integer
+        404:
+          description: Ошибка добавления продукта
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          description: Неожиданная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Изменение количества продукта
+      parameters:
+        - name: id
+          description: Уникальный идентификатор корзины
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/id"
+        - name: quantity_of_products
+          description: Количество продуктов
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Успешное изменение количества продукта
+        400:
+          description: Недостаточно параметров
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Продукт не найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          description: Неожиданная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Удаление продукта из корзины или корзины полностью
+      parameters:
+        - name: id
+          description: Уникальный идентификатор между корзиной и продуктом
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/id"
+        - name: user_id
+          description: Уникальный идентификатор пользователя, если необхимо удалить всю
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/user_id"
+      responses:
+        "200":
+          description: Продукт успешно удален
+        400:
+          description: Недостаточно параметров
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Корзина или продукт не найдены
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          description: Неожиданная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    id:
+      description: Уникальный идентификатор между корзиной и продуктом
+      type: integer
+    user_id:
+      description: Уникальный идентификатор пользователя
+      type: integer
+    product_id:
+      description: Уникальный идентификатор продукта
+      type: integer
+    quantity_of_products:
+      description: Уникальный идентификатор количество продукта
+      type: integer
+    baskets:
+      type: array
+      items:
+        $ref: "#/components/schemas/basket"
+    basket:
+      type: object
+      required:
+        - id
+        - user_id
+        - product_id
+        - quantity_of_products
+      properties:
+        id:
+          $ref: "#/components/schemas/id"
+        user_id:
+          $ref: "#/components/schemas/user_id"
+        product_id:
+          $ref: "#/components/schemas/product_id"
+        quantity_of_products:
+          $ref: "#/components/schemas/quantity_of_products"
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          description: Сообщение об ошибке
+          type: string
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+security:
+  - basicAuth: []

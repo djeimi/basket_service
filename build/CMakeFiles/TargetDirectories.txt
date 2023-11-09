@@ -1,0 +1,3 @@
+/home/elvira/arch_homework1/basket_service/build/CMakeFiles/basket_service.dir
+/home/elvira/arch_homework1/basket_service/build/CMakeFiles/edit_cache.dir
+/home/elvira/arch_homework1/basket_service/build/CMakeFiles/rebuild_cache.dir
