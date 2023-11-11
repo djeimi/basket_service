@@ -63,15 +63,16 @@ static bool hasSubstr(const std::string &str, const std::string &substr)
 class BasketHandler : public HTTPRequestHandler
 {
 private:
-    bool check_name(const std::string &name, std::string &reason)
+    bool check_presence_of_product(std::string &responseBody, long product_id, std::string &reason)
     {
-        if (name.length() < 3)
+        if (responseBody.find(product_id) != std::string::npos)
         {
-            reason = "Name must be at least 3 signs";
-            return false;
+            reason = "Product_id" + std::to_string(product_id) + "found in the response.";
+            return true;
         }
 
-        return true;
+        reason = "Product_id" + std::to_string(product_id) + "not found in the response.";
+        return false;
     };
 
     bool check_quantity(const int &quantity_of_product, std::string &reason)
@@ -148,29 +149,63 @@ public:
                         Basket.product_id() = atol(form.get("product_id").c_str());
                         Basket.quantity_of_products() = stoi(form.get("quantity_of_products"));
 
-                        bool check_result = true;
+                        bool check_result1 = true;
+                        bool check_result2 = true;
                         std::string message;
                         std::string reason;
 
+                        if (form.has("user_id"))
+                        {
+                            long fn = atol(form.get("user_id").c_str());
+                            auto results = database::Basket::search_by_user_id(fn);
+                            if (!results.empty())
+                            {
+                                Poco::JSON::Array arr;
+                                for (auto s : results)
+                                    arr.add(s.toJSON());
+                                response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
+                                response.setChunkedTransferEncoding(true);
+                                response.setContentType("application/json");
+                                std::stringstream responseStream;
+                                Poco::JSON::Stringifier::stringify(arr, responseStream);
+                                std::string responseBody = responseStream.str();
+                                std::ostream &ostr = response.send();
+                                ostr << responseBody;
+
+                                if (check_presence_of_product(responseBody, Basket.product_id(), reason))
+                                {
+                                    check_result1 = false;
+                                    message += reason;
+                                    message += "<br>";
+                                }
+                                return;
+                            }
+                            else
+                            {
+                                notFoundError(response, request.getURI(), "Basket not found for this user");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            badRequestError(response, request.getURI());
+                            return;
+                        }
+
                         if (!check_quantity(Basket.get_quantity_of_products(), reason))
                         {
-                            check_result = false;
+                            check_result2 = false;
                             message += reason;
                             message += "<br>";
                         }
 
-                        if (check_result)
+                        if (check_result1 && check_result2)
                         {
                             Basket.save_to_mysql();
-                            std::cout << "Basket.save_to_mysql();" << std::endl;
                             response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
-                            std::cout << "setStatus" << std::endl;
                             response.setChunkedTransferEncoding(true);
-                            std::cout << "setChunkedTransferEncoding" << std::endl;
                             response.setContentType("application/json");
-                            std::cout << "setContentType" << std::endl;
                             std::ostream &ostr = response.send();
-                            std::cout << "response.send()" << std::endl;
                             ostr << Basket.get_id();
                             return;
                         }
@@ -244,7 +279,7 @@ public:
                             return;
                         }
                     }
-                    else if(!form.has("id") && form.has("user_id"))
+                    else if (!form.has("id") && form.has("user_id"))
                     {
                         long user_id = atol(form.get("product_id").c_str());
 

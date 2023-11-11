@@ -55,8 +55,8 @@ public:
 
         std::cout << "request:" << request.getURI()<< std::endl;
         if (hasSubstr(request.getURI(),"/search_basket") ||
-            hasSubstr(request.getURI(),"/all_baskets") ||
-            hasSubstr(request.getURI(),"/baskets")) 
+            hasSubstr(request.getURI(),"/all_Baskets") ||
+            hasSubstr(request.getURI(),"/basket")) 
             return new BasketHandler(_format);
         return 0;
     }
