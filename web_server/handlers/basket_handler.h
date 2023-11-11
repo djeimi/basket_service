@@ -162,10 +162,15 @@ public:
                         if (check_result)
                         {
                             Basket.save_to_mysql();
+                            std::cout << "Basket.save_to_mysql();" << std::endl;
                             response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
+                            std::cout << "setStatus" << std::endl;
                             response.setChunkedTransferEncoding(true);
+                            std::cout << "setChunkedTransferEncoding" << std::endl;
                             response.setContentType("application/json");
+                            std::cout << "setContentType" << std::endl;
                             std::ostream &ostr = response.send();
+                            std::cout << "response.send()" << std::endl;
                             ostr << Basket.get_id();
                             return;
                         }
