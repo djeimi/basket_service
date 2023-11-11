@@ -67,11 +67,11 @@ private:
     {
         if (responseBody.find(product_id) != std::string::npos)
         {
-            reason = "Product_id" + std::to_string(product_id) + "found in the response.";
+            reason = "Product_id" + std::to_string(product_id) + "already is in basket.";
             return true;
         }
 
-        reason = "Product_id" + std::to_string(product_id) + "not found in the response.";
+        reason = "Product_id" + std::to_string(product_id) + "is not in basket.";
         return false;
     };
 
