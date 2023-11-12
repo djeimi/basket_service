@@ -63,16 +63,25 @@ static bool hasSubstr(const std::string &str, const std::string &substr)
 class BasketHandler : public HTTPRequestHandler
 {
 private:
-    bool check_presence_of_product(std::string &responseBody, long product_id, std::string &reason)
+    bool check_is_product_present(HTTPServerResponse &response, long user_id, long product_id, long quantity_of_products, std::string &reason)
     {
-        if (responseBody.find(product_id) != std::string::npos)
+        auto result = database::Basket::check_presence_of_product_in_basket(user_id, product_id);
+        if (result)
         {
-            reason = "Product_id" + std::to_string(product_id) + "already is in basket.";
+            result->quantity_of_products() += quantity_of_products;
+
+            reason = "This product is found for this user in basket already, editing quantity";
+            result->update_in_mysql();
+            response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
+            response.setChunkedTransferEncoding(true);
+            response.setContentType("application/json");
             return true;
         }
-
-        reason = "Product_id" + std::to_string(product_id) + "is not in basket.";
-        return false;
+        else
+        {
+            reason = "This product is not found for this user in basket";
+            return false;
+        }
     };
 
     bool check_quantity(const int &quantity_of_product, std::string &reason)
@@ -154,47 +163,16 @@ public:
                         std::string message;
                         std::string reason;
 
-                        if (form.has("user_id"))
-                        {
-                            long fn = atol(form.get("user_id").c_str());
-                            auto results = database::Basket::search_by_user_id(fn);
-                            if (!results.empty())
-                            {
-                                Poco::JSON::Array arr;
-                                for (auto s : results)
-                                    arr.add(s.toJSON());
-                                response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
-                                response.setChunkedTransferEncoding(true);
-                                response.setContentType("application/json");
-                                std::stringstream responseStream;
-                                Poco::JSON::Stringifier::stringify(arr, responseStream);
-                                std::string responseBody = responseStream.str();
-                                std::ostream &ostr = response.send();
-                                ostr << responseBody;
-
-                                if (check_presence_of_product(responseBody, Basket.product_id(), reason))
-                                {
-                                    check_result1 = false;
-                                    message += reason;
-                                    message += "<br>";
-                                }
-                                return;
-                            }
-                            else
-                            {
-                                notFoundError(response, request.getURI(), "Basket not found for this user");
-                                return;
-                            }
-                        }
-                        else
-                        {
-                            badRequestError(response, request.getURI());
-                            return;
-                        }
-
                         if (!check_quantity(Basket.get_quantity_of_products(), reason))
                         {
                             check_result2 = false;
+                            message += reason;
+                            message += "<br>";
+                        }
+
+                        if (check_is_product_present(response, Basket.user_id(), Basket.user_id(), Basket.quantity_of_products(), reason))
+                        {
+                            check_result1 = false;
                             message += reason;
                             message += "<br>";
                         }

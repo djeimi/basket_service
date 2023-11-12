@@ -137,6 +137,38 @@ namespace database
         return false;
     }
 
+    std::optional<Basket> Basket::check_presence_of_product_in_basket(long user_id, long product_id)
+    {
+        try
+        {
+            Poco::Data::Session session = database::Database::get().create_session();
+            Statement select(session);
+            Basket a;
+            select << "SELECT `id`, 'quantity_of_products' FROM `Basket` WHERE `user_id` = ? and `product_id` = ?;",
+                into(a._id),
+                into(a._quantity_of_products),
+                use(user_id),
+                use(product_id),
+                range(0, 1);
+
+            select.execute();
+            Poco::Data::RecordSet rs(select);
+            if (rs.moveFirst()) return a;
+        }
+
+        catch (Poco::Data::MySQL::ConnectionException &e)
+        {
+            std::cout << "connection:" << e.what() << std::endl;
+            throw;
+        }
+        catch (Poco::Data::MySQL::StatementException &e)
+        {
+
+            std::cout << "statement:" << e.what() << std::endl;
+            throw;
+        }
+    }
+
     Poco::JSON::Object::Ptr Basket::toJSON() const
     {
         Poco::JSON::Object::Ptr root = new Poco::JSON::Object();
