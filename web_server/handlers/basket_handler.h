@@ -259,7 +259,7 @@ public:
                     }
                     else if (!form.has("id") && form.has("user_id"))
                     {
-                        long user_id = atol(form.get("product_id").c_str());
+                        long user_id = atol(form.get("user_id").c_str());
 
                         if (database::Basket::delete_in_mysql_basket(user_id))
                         {
@@ -303,7 +303,7 @@ public:
                     return;
                 }
             }
-            else if (hasSubstr(request.getURI(), "/search_Basket"))
+            else if (hasSubstr(request.getURI(), "/search_basket"))
             {
                 if (form.has("user_id"))
                 {

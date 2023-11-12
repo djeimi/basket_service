@@ -57,8 +57,8 @@ namespace database
             Poco::Data::Statement update(session);
 
             update << "UPDATE `Basket`"
-                   << "SET `quantity_of_products` = ?"
-                   << "where `id` = ?",
+                   << "SET `quantity_of_products` = ? "
+                   << "WHERE `id` = ?",
                 use(_quantity_of_products),
                 use(_id);
 
