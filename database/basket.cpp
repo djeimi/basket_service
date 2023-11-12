@@ -153,7 +153,8 @@ namespace database
 
             select.execute();
             Poco::Data::RecordSet rs(select);
-            if (rs.moveFirst()) return a;
+            if (rs.moveFirst())
+                return a;
         }
 
         catch (Poco::Data::MySQL::ConnectionException &e)
@@ -163,10 +164,11 @@ namespace database
         }
         catch (Poco::Data::MySQL::StatementException &e)
         {
-
             std::cout << "statement:" << e.what() << std::endl;
             throw;
         }
+
+        return std::nullopt;
     }
 
     Poco::JSON::Object::Ptr Basket::toJSON() const
