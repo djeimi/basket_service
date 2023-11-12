@@ -168,7 +168,7 @@ namespace database
             throw;
         }
 
-        return std::nullopt;
+        return {};
     }
 
     Poco::JSON::Object::Ptr Basket::toJSON() const
