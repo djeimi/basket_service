@@ -160,8 +160,15 @@ public:
 
                         bool check_result1 = true;
                         bool check_result2 = true;
+                        bool check_existance_of_user = true;
                         std::string message;
                         std::string reason;
+
+                        if(!(check_existance_of_user = Basket.is_user_exist()))
+                        {
+                            message += "Пользователь с таким id не существует!";
+                            message += "<br>";
+                        }
 
                         if (!check_quantity(Basket.get_quantity_of_products(), reason))
                         {
@@ -177,12 +184,14 @@ public:
                             message += "<br>";
                         }
 
-                        if (check_result1 && check_result2)
+                        if (check_result1 && check_result2 && check_existance_of_user)
                         {
                             Basket.save_to_mysql();
                             response.setStatus(Poco::Net::HTTPResponse::HTTP_OK);
                             response.setChunkedTransferEncoding(true);
                             response.setContentType("application/json");
+                            Poco::JSON::Object::Ptr root = new Poco::JSON::Object();
+                            root->set("inserted_id", Basket.id());
                             std::ostream &ostr = response.send();
                             ostr << Basket.get_id();
                             return;

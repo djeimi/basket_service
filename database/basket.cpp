@@ -30,7 +30,7 @@ namespace database
                         << "`product_id` INT NOT NULL,"
                         << "`quantity_of_products` INT NOT NULL,"
                         << "PRIMARY KEY (`id`),"
-                        << "FOREIGN KEY (`user_id`) REFERENCES `user` (`id`),"
+                        << "KEY uid (`user_id`)"
                         << "FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`)"
                         << ");",
                 now;
@@ -38,15 +38,44 @@ namespace database
 
         catch (Poco::Data::MySQL::ConnectionException &e)
         {
-            std::cout << "connection:" << e.what() << std::endl;
+            std::cout << "connection:" << e.displayText() << std::endl;
             throw;
         }
         catch (Poco::Data::MySQL::StatementException &e)
         {
 
-            std::cout << "statement:" << e.what() << std::endl;
+            std::cout << "statement:" << e.displayText() << std::endl;
             throw;
         }
+    }
+
+    bool Basket::is_user_exist()
+    {
+        try
+        {
+            Poco::Data::Session session = database::Database::get().create_session();
+            auto hint = Database::sharding_user(_user_id);
+            Statement select(session);
+            int exist;
+            select  << "SELECT EXISTS(SELECT `id` FROM `user` WHERE `id` = ?)"
+                    << hint,
+                into(exist),
+                use(_user_id),
+                range(0, 1); //  iterate over result set one row at a time
+
+            select.execute();
+            if(exist) return true;           
+        }
+        catch (Poco::Data::MySQL::ConnectionException &e)
+        {
+            std::cout << e.displayText() << std::endl;
+        }
+        catch (Poco::Data::MySQL::StatementException &e)
+        {
+            std::cout << e.displayText() << std::endl;
+        }
+
+        return false;
     }
 
     void Basket::update_in_mysql()
@@ -68,13 +97,13 @@ namespace database
         }
         catch (Poco::Data::MySQL::ConnectionException &e)
         {
-            std::cout << "connection:" << e.what() << std::endl;
+            std::cout << "connection:" << e.displayText() << std::endl;
             throw;
         }
         catch (Poco::Data::MySQL::StatementException &e)
         {
 
-            std::cout << "statement:" << e.what() << std::endl;
+            std::cout << "statement:" << e.displayText() << std::endl;
             throw;
         }
     }
@@ -96,13 +125,13 @@ namespace database
 
         catch (Poco::Data::MySQL::ConnectionException &e)
         {
-            std::cout << "connection:" << e.what() << std::endl;
+            std::cout << "connection:" << e.displayText() << std::endl;
             throw;
         }
         catch (Poco::Data::MySQL::StatementException &e)
         {
 
-            std::cout << "statement:" << e.what() << std::endl;
+            std::cout << "statement:" << e.displayText() << std::endl;
             throw;
         }
         return false;
@@ -125,13 +154,13 @@ namespace database
 
         catch (Poco::Data::MySQL::ConnectionException &e)
         {
-            std::cout << "connection:" << e.what() << std::endl;
+            std::cout << "connection:" << e.displayText() << std::endl;
             throw;
         }
         catch (Poco::Data::MySQL::StatementException &e)
         {
 
-            std::cout << "statement:" << e.what() << std::endl;
+            std::cout << "statement:" << e.displayText() << std::endl;
             throw;
         }
         return false;
@@ -159,12 +188,12 @@ namespace database
 
         catch (Poco::Data::MySQL::ConnectionException &e)
         {
-            std::cout << "connection:" << e.what() << std::endl;
+            std::cout << "connection:" << e.displayText() << std::endl;
             throw;
         }
         catch (Poco::Data::MySQL::StatementException &e)
         {
-            std::cout << "statement:" << e.what() << std::endl;
+            std::cout << "statement:" << e.displayText() << std::endl;
             throw;
         }
 
@@ -224,13 +253,13 @@ namespace database
 
         catch (Poco::Data::MySQL::ConnectionException &e)
         {
-            std::cout << "connection:" << e.what() << std::endl;
+            std::cout << "connection:" << e.displayText() << std::endl;
             throw;
         }
         catch (Poco::Data::MySQL::StatementException &e)
         {
 
-            std::cout << "statement:" << e.what() << std::endl;
+            std::cout << "statement:" << e.displayText() << std::endl;
             throw;
         }
     }
@@ -261,13 +290,13 @@ namespace database
 
         catch (Poco::Data::MySQL::ConnectionException &e)
         {
-            std::cout << "connection:" << e.what() << std::endl;
+            std::cout << "connection:" << e.displayText() << std::endl;
             throw;
         }
         catch (Poco::Data::MySQL::StatementException &e)
         {
 
-            std::cout << "statement:" << e.what() << std::endl;
+            std::cout << "statement:" << e.displayText() << std::endl;
             throw;
         }
     }
@@ -300,13 +329,13 @@ namespace database
         }
         catch (Poco::Data::MySQL::ConnectionException &e)
         {
-            std::cout << "connection:" << e.what() << std::endl;
+            std::cout << "connection:" << e.displayText() << std::endl;
             throw;
         }
         catch (Poco::Data::MySQL::StatementException &e)
         {
 
-            std::cout << "statement:" << e.what() << std::endl;
+            std::cout << "statement:" << e.displayText() << std::endl;
             throw;
         }
     }

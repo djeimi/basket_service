@@ -27,9 +27,10 @@ namespace database
         long &id();
         long &user_id();
         long &product_id();
-        int &quantity_of_products();
+        int  &quantity_of_products();
 
         static void init();
+        bool is_user_exist();
         void update_in_mysql();
         static std::optional<Basket> check_presence_of_product_in_basket(long user_id, long product_id);
         static bool delete_in_mysql_product(long id);
