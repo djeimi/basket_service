@@ -30,7 +30,7 @@ namespace database
                         << "`product_id` INT NOT NULL,"
                         << "`quantity_of_products` INT NOT NULL,"
                         << "PRIMARY KEY (`id`),"
-                        << "KEY uid (`user_id`)"
+                        << "KEY uid (`user_id`),"
                         << "FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`)"
                         << ");",
                 now;
