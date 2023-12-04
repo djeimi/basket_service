@@ -54,7 +54,7 @@ paths:
                 type: string
   /basket:
     post:
-      summary: Идентификатор, добавленного продукта в корзину
+      summary: Добавление продукта в корзину
       parameters:
         - name: user_id
           description: user_id
@@ -139,7 +139,7 @@ paths:
           schema:
             $ref: "#/components/schemas/id"
         - name: user_id
-          description: Уникальный идентификатор пользователя, если необхимо удалить всю
+          description: Уникальный идентификатор пользователя, если необходимо удалить всю корзину
           in: query
           required: false
           schema:
