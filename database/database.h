@@ -11,7 +11,7 @@
 namespace database{
     class Database{
         private:
-            static size_t _n_shards;
+            static size_t _shards;
             std::string _connection_string;
             std::unique_ptr<Poco::Data::SessionPool> _pool;
             Database();
